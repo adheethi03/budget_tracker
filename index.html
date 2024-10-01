@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Budget Tracker</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      #displayBalance {
+        margin-left: 150px;
+      }
+      #expenseTable {
+        width: 100%;
+        margin-top: 20px;
+      }
+      table {
+        width: 100%;
+        margin: 10px 0;
+        border-collapse: collapse;
+      }
+      th, td {
+        padding: 8px;
+        text-align: left;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="my-4 text-center">Personal Budget Tracker</h1>
+      <!-- Income Section -->
+      <div class="card m-3">
+        <div class="card-body">
+          <h5 class="card-title">Add Income</h5>
+          <form id="incomeForm">
+            <div class="form-group">
+              <label for="income" class="form-label">Income Amount:</label>
+              <input
+                type="number"
+                name="income"
+                id="incomeAmount"
+                class="form-control"
+                required
+              />
+            </div>
+
+            <button class="btn btn-primary m-2">Submit</button>
+          </form>
+        </div>
+      </div>
+      <!-- Expense Section -->
+      <div class="card m-3">
+        <div class="card-body">
+          <h5 class="card-title">Expense</h5>
+          <form id="expenseForm">
+            <div class="form-group">
+              <label for="expenseDesc" class="form-label">Expense Description:</label>
+              <input
+                type="text"
+                name="expenseDesc"
+                id="expenseDesc"
+                class="form-control"
+                required
+              />
+              <label for="expenseAmount" class="form-label">Expense Amount:</label>
+              <input
+                type="number"
+                name="expenseAmount"
+                id="expenseAmount"
+                class="form-control"
+                required
+              />
+            </div>
+            <label for="expenseCategory" class="form-label">Category</label>
+            <select id="expenseCategory" class="form-control">
+              <option value="Food" selected>Food</option>
+              <option value="Transport">Transport</option>
+              <option value="Entertainment">Entertainment</option>
+              <option value="Others">Others</option>
+            </select>
+            <button class="btn btn-primary m-2">Submit</button>
+          </form>
+        </div>
+      </div>
+      <!-- Budget Summary -->
+      <div class="card m-3">
+        <div class="card-body">
+          <h5 class="card-title">Summary</h5>
+          <span id="displayIncome">Income is Rs 0</span>
+          <span id="displayBalance">Balance is Rs 0</span>
+
+          <!-- Table -->
+          <div id="expenseTable">
+            <h6 class="mt-3">Expense List</h6>
+            <table>
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Amount</th>
+                  <th>Category</th>
+                </tr>
+              </thead>
+              <tbody id="expenseTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Internal Script -->
+    <script>
+      const incomeForm = document.getElementById("incomeForm");
+      const incomeAmount = document.getElementById("incomeAmount");
+      const expenseForm = document.getElementById("expenseForm");
+      const expenseAmount = document.getElementById("expenseAmount");
+      const expenseDesc = document.getElementById("expenseDesc");
+      const expenseCategory = document.getElementById("expenseCategory");
+      const displayIncome = document.getElementById("displayIncome");
+      const displayBalance = document.getElementById("displayBalance");
+      const expenseTableBody = document.getElementById("expenseTableBody");
+      let income = 0;
+      let expenses = [];
+
+      
+      incomeForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        income = parseInt(incomeAmount.value);
+        incomeAmount.value = "";
+        displayIncome.textContent = `Income is Rs ${income}`;
+        displayBalance.textContent = `Balance is Rs ${income}`;
+      });
+      expenseForm.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const expenseAmountValue = parseInt(expenseAmount.value);
+        const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+
+        if (totalExpenses + expenseAmountValue > income) {
+          alert("Expenses exceed available income!");
+        } else {
+          const expense = {
+            description: expenseDesc.value,
+            amount: expenseAmountValue,
+            category: expenseCategory.value,
+          };
+          expenses.push(expense);
+          expenseDesc.value = "";
+          expenseAmount.value = "";
+          expenseCategory.value = "Food";
+          updateBalance();
+          addExpenseToTable(expense);
+        }
+      });
+
+      // Budget Summary
+      const updateBalance = () => {
+        const totalExpenses = expenses.reduce(
+          (sum, expense) => sum + expense.amount,
+          0
+        );
+        const balance = income - totalExpenses;
+        displayBalance.textContent = `Balance is Rs ${balance < 0 ? 0 : balance}`;
+      };
+      const addExpenseToTable = (expense) => {
+        const row = document.createElement("tr");
+        const descCell = document.createElement("td");
+        descCell.textContent = expense.description;
+
+        const amountCell = document.createElement("td");
+        amountCell.textContent = `Rs ${expense.amount}`;
+
+        const categoryCell = document.createElement("td");
+        categoryCell.textContent = expense.category;
+        row.appendChild(descCell);
+        row.appendChild(amountCell);
+        row.appendChild(categoryCell);
+        expenseTableBody.appendChild(row);
+      };
+    </script>
+  </body>
+</html>
